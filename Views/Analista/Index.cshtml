@@ -1,0 +1,114 @@
+@model IEnumerable<Parcial.Models.SolicitudCredito>
+
+@{
+    ViewData["Title"] = "Panel de Analista";
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="fw-bold text-primary mb-0">📋 Panel de Evaluación (Analista)</h2>
+        <p class="text-muted mt-1 mb-0">Listado de solicitudes de crédito pendientes de revisión.</p>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+        <strong>¡Éxito!</strong> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+        <strong>Error:</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-borderless align-middle mb-0">
+                <thead class="table-light text-muted">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Cliente</th>
+                        <th>Ingresos Mensuales</th>
+                        <th>Monto Solicitado</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">#@item.Id</td>
+                            <td>@item.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <div><i class="bi bi-person-fill text-muted me-1"></i> @item.Cliente?.Usuario?.Email</div>
+                            </td>
+                            <td>@item.Cliente?.IngresosMensuales.ToString("C")</td>
+                            <td class="fw-bold text-primary">@item.MontoSolicitado.ToString("C")</td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-2">
+                                    <!-- Formulario Aprobar -->
+                                    <form asp-action="Aprobar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('¿Está seguro de APROBAR esta solicitud?');">
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">
+                                            ✔️ Aprobar
+                                        </button>
+                                    </form>
+
+                                    <!-- Botón que abre modal de Rechazar -->
+                                    <button type="button" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalRechazo-@item.Id">
+                                        ❌ Rechazar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Modal de Rechazo para cada elemento -->
+                        <div class="modal fade" id="modalRechazo-@item.Id" tabindex="-1" aria-labelledby="modalRechazoLabel-@item.Id" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow">
+                                    <div class="modal-header bg-danger text-white border-0">
+                                        <h5 class="modal-title fw-bold" id="modalRechazoLabel-@item.Id">Rechazar Solicitud #@item.Id</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form asp-action="Rechazar" asp-route-id="@item.Id" method="post">
+                                        <div class="modal-body p-4">
+                                            <p class="text-muted small mb-3">Está a punto de rechazar la solicitud de <strong>@item.Cliente?.Usuario?.Email</strong> por <strong>@item.MontoSolicitado.ToString("C")</strong>.</p>
+                                            
+                                            <div class="mb-3">
+                                                <label for="motivoRechazo" class="form-label fw-bold">Motivo de Rechazo <span class="text-danger">*</span></label>
+                                                <textarea name="motivoRechazo" id="motivoRechazo" class="form-control" rows="3" required placeholder="Explique brevemente por qué se rechaza la solicitud..."></textarea>
+                                                <div class="form-text text-muted">El motivo es obligatorio y será visible para el cliente.</div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 bg-light">
+                                            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">Confirmar Rechazo</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-success shadow-sm border-0 d-flex align-items-center p-4 rounded-4" role="alert">
+        <h2 class="mb-0 me-3">🎉</h2>
+        <div>
+            <h5 class="alert-heading fw-bold mb-1">¡Todo al día!</h5>
+            <p class="mb-0">No hay ninguna solicitud de crédito en estado Pendiente para evaluar en este momento.</p>
+        </div>
+    </div>
+}
