@@ -13,7 +13,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 
 // ─── Redis Cache ─────────────────────────────────────────────────────────────
-var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+var redisConnectionString = builder.Configuration["Redis:ConnectionString"] 
+    ?? builder.Configuration.GetConnectionString("RedisConnection");
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = redisConnectionString;
