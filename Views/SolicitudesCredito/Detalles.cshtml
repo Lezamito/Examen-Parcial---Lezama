@@ -1,0 +1,84 @@
+@model Parcial.Models.SolicitudCredito
+
+@{
+    ViewData["Title"] = "Detalle de Solicitud";
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="fw-bold text-primary mb-0">🔍 Detalle de Solicitud #@Model.Id</h2>
+    </div>
+    <div class="col-auto">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+            ⬅️ Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-secondary mb-0">Información de la Solicitud</h5>
+                    <div>
+                        @if (Model.Estado == Parcial.Models.EstadoSolicitud.Aprobado)
+                        {
+                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">Aprobado</span>
+                        }
+                        else if (Model.Estado == Parcial.Models.EstadoSolicitud.Rechazado)
+                        {
+                            <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill">Rechazado</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">Pendiente</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="d-block text-muted small fw-bold text-uppercase">Fecha de Solicitud</span>
+                            <span class="fs-5 fw-semibold text-dark">@Model.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="d-block text-muted small fw-bold text-uppercase">Monto Solicitado</span>
+                            <span class="fs-5 fw-bold text-primary">@Model.MontoSolicitado.ToString("C")</span>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4 text-muted" />
+                    <h6 class="fw-bold text-secondary mb-3">Datos del Cliente</h6>
+
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="d-block text-muted small fw-bold text-uppercase">Email del Cliente</span>
+                            <span class="fs-6 fw-semibold text-dark">@Model.Cliente?.Usuario?.Email</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="d-block text-muted small fw-bold text-uppercase">Ingresos Mensuales Declarados</span>
+                            <span class="fs-6 fw-semibold text-dark">@Model.Cliente?.IngresosMensuales.ToString("C")</span>
+                        </div>
+                    </div>
+
+                    @if (Model.Estado == Parcial.Models.EstadoSolicitud.Rechazado && !string.IsNullOrEmpty(Model.MotivoRechazo))
+                    {
+                        <div class="col-12 mt-4">
+                            <div class="alert alert-danger border-0 shadow-sm">
+                                <h6 class="alert-heading fw-bold mb-1">Motivo de Rechazo:</h6>
+                                <p class="mb-0">@Model.MotivoRechazo</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
