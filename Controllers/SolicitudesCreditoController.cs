@@ -111,6 +111,85 @@ namespace Parcial.Controllers
             return View(solicitud);
         }
 
+        [Authorize(Roles = "Cliente")]
+        public async Task<IActionResult> Crear()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+            
+            if (cliente == null || !cliente.Activo)
+            {
+                TempData["Error"] = "Su perfil de cliente no está activo o no existe.";
+                return RedirectToAction(nameof(MisSolicitudes));
+            }
+
+            // Verificar si ya tiene una solicitud pendiente
+            bool tienePendiente = await _context.SolicitudesCredito
+                .AnyAsync(s => s.ClienteId == cliente.Id && s.Estado == EstadoSolicitud.Pendiente);
+
+            if (tienePendiente)
+            {
+                TempData["Error"] = "Ya tiene una solicitud en estado Pendiente. No puede registrar otra.";
+                return RedirectToAction(nameof(MisSolicitudes));
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Cliente")]
+        public async Task<IActionResult> Crear(CrearSolicitudViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == userId);
+
+            // Validación: Cliente activo
+            if (cliente == null || !cliente.Activo)
+            {
+                ModelState.AddModelError(string.Empty, "Su perfil de cliente no está activo o no existe.");
+                return View(model);
+            }
+
+            // Validación: Solo una solicitud pendiente
+            bool tienePendiente = await _context.SolicitudesCredito
+                .AnyAsync(s => s.ClienteId == cliente.Id && s.Estado == EstadoSolicitud.Pendiente);
+
+            if (tienePendiente)
+            {
+                ModelState.AddModelError(string.Empty, "Ya tiene una solicitud en estado Pendiente. No puede registrar otra.");
+                return View(model);
+            }
+
+            // Validación: Monto <= 10 * IngresosMensuales
+            decimal limiteMonto = cliente.IngresosMensuales * 10;
+            if (model.MontoSolicitado > limiteMonto)
+            {
+                ModelState.AddModelError("MontoSolicitado", $"El monto solicitado no puede superar 10 veces sus ingresos mensuales ({limiteMonto:C}).");
+                return View(model);
+            }
+
+            // Crear solicitud
+            var solicitud = new SolicitudCredito
+            {
+                ClienteId = cliente.Id,
+                MontoSolicitado = model.MontoSolicitado,
+                FechaSolicitud = DateTime.UtcNow,
+                Estado = EstadoSolicitud.Pendiente
+            };
+
+            _context.SolicitudesCredito.Add(solicitud);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Su solicitud de crédito ha sido registrada exitosamente y está pendiente de evaluación.";
+            return RedirectToAction(nameof(MisSolicitudes));
+        }
+
         // Action placeholder para Index del Analista (evitar error en el Layout)
         [Authorize(Roles = "Analista")]
         public IActionResult Index()
