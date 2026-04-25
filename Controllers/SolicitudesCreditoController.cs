@@ -7,6 +7,10 @@ using Parcial.Models;
 using Parcial.Models.ViewModels;
 using System.Security.Claims;
 
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Parcial.Controllers
 {
     [Authorize]
@@ -14,11 +18,13 @@ namespace Parcial.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDistributedCache _cache;
 
-        public SolicitudesCreditoController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public SolicitudesCreditoController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDistributedCache cache)
         {
             _context = context;
             _userManager = userManager;
+            _cache = cache;
         }
 
         [Authorize(Roles = "Cliente")]
@@ -76,7 +82,37 @@ namespace Parcial.Controllers
                 query = query.Where(s => s.FechaSolicitud <= endOfDay);
             }
 
+            // Implementación de Caché en Redis
+            string cacheKey = $"solicitudes_{userId}";
+            bool isFiltered = filter.Estado.HasValue || filter.MontoMin.HasValue || filter.MontoMax.HasValue || filter.FechaInicio.HasValue || filter.FechaFin.HasValue;
+
+            if (!isFiltered)
+            {
+                var cachedData = await _cache.GetStringAsync(cacheKey);
+                if (!string.IsNullOrEmpty(cachedData))
+                {
+                    filter.Solicitudes = JsonSerializer.Deserialize<List<SolicitudCredito>>(cachedData, new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.IgnoreCycles
+                    });
+                    return View(filter);
+                }
+            }
+
             filter.Solicitudes = await query.OrderByDescending(s => s.FechaSolicitud).ToListAsync();
+
+            if (!isFiltered)
+            {
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60)
+                };
+                var serializedData = JsonSerializer.Serialize(filter.Solicitudes, new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.IgnoreCycles
+                });
+                await _cache.SetStringAsync(cacheKey, serializedData, cacheOptions);
+            }
 
             return View(filter);
         }
@@ -107,6 +143,10 @@ namespace Parcial.Controllers
             {
                 return Forbid();
             }
+
+            // Guardar última solicitud en sesión
+            HttpContext.Session.SetString("UltimaSolicitudMonto", solicitud.MontoSolicitado.ToString("C"));
+            HttpContext.Session.SetString("UltimaSolicitudId", solicitud.Id.ToString());
 
             return View(solicitud);
         }
@@ -185,6 +225,9 @@ namespace Parcial.Controllers
 
             _context.SolicitudesCredito.Add(solicitud);
             await _context.SaveChangesAsync();
+
+            // Invalidar caché
+            await _cache.RemoveAsync($"solicitudes_{userId}");
 
             TempData["Success"] = "Su solicitud de crédito ha sido registrada exitosamente y está pendiente de evaluación.";
             return RedirectToAction(nameof(MisSolicitudes));

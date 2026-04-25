@@ -132,3 +132,6 @@ C:\Users\PC\OneDrive\Escritorio\Parcial\obj\Debug\net8.0\refint\Parcial.dll
 C:\Users\PC\OneDrive\Escritorio\Parcial\obj\Debug\net8.0\Parcial.pdb
 C:\Users\PC\OneDrive\Escritorio\Parcial\obj\Debug\net8.0\Parcial.genruntimeconfig.cache
 C:\Users\PC\OneDrive\Escritorio\Parcial\obj\Debug\net8.0\ref\Parcial.dll
+C:\Users\PC\OneDrive\Escritorio\Parcial\bin\Debug\net8.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\PC\OneDrive\Escritorio\Parcial\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\PC\OneDrive\Escritorio\Parcial\bin\Debug\net8.0\StackExchange.Redis.dll
