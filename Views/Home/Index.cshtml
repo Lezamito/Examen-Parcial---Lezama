@@ -1,8 +1,85 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-3">Tu futuro empieza con CréditosSeguros</h1>
+            <p class="lead text-secondary mb-4">
+                La plataforma líder para solicitar y gestionar tus préstamos personales con las tasas más competitivas del mercado. Evaluamos tu perfil al instante.
+            </p>
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <div class="d-flex gap-3">
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
+                        Crear una cuenta
+                    </a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-lg rounded-pill px-4">
+                        Iniciar Sesión
+                    </a>
+                </div>
+            }
+            else
+            {
+                <h4 class="text-success mb-4">¡Hola, @User.Identity?.Name! Bienvenido de nuevo.</h4>
+                @if (User.IsInRole("Cliente"))
+                {
+                    <a asp-controller="SolicitudesCredito" asp-action="MisSolicitudes" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                        Ir a mi Panel
+                    </a>
+                }
+                else if (User.IsInRole("Analista"))
+                {
+                    <a asp-controller="Analista" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                        Ir al Panel de Evaluación
+                    </a>
+                }
+            }
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0 text-center">
+            <!-- Icono decorativo o ilustración abstracta con Bootstrap -->
+            <div class="bg-primary bg-opacity-10 rounded-circle p-5 d-inline-block shadow-lg" style="width: 350px; height: 350px;">
+                <i class="bi bi-wallet2 text-primary" style="font-size: 8rem; line-height: 250px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row g-4 py-5 border-top">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4 hover-shadow transition-all">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-lightning-charge-fill fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Rápido y Fácil</h4>
+                <p class="text-muted">Proceso 100% digital. Registra tu solicitud en minutos y recibe respuesta rápida por parte de nuestros analistas.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4 hover-shadow transition-all">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-shield-check fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Máxima Seguridad</h4>
+                <p class="text-muted">Protegemos tu información con los más altos estándares de seguridad y sistemas en la nube de alta disponibilidad.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4 hover-shadow transition-all">
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                    <i class="bi bi-graph-up-arrow fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Condiciones Justas</h4>
+                <p class="text-muted">Aprobación inteligente basada en tus ingresos reales con topes saludables que protegen tu economía.</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Estilos adicionales para micro-interacciones -->
+<style>
+    .hover-shadow { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
+</style>
