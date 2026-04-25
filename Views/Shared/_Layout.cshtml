@@ -48,6 +48,17 @@
                                     📄 Mis Solicitudes
                                 </a>
                             </li>
+                            
+                            var ultimaMonto = Context.Session.GetString("UltimaSolicitudMonto");
+                            var ultimaId = Context.Session.GetString("UltimaSolicitudId");
+                            if (!string.IsNullOrEmpty(ultimaMonto) && !string.IsNullOrEmpty(ultimaId))
+                            {
+                                <li class="nav-item ms-3 border-start ps-3 border-light border-opacity-25">
+                                    <a class="nav-link text-warning fw-bold" asp-controller="SolicitudesCredito" asp-action="Detalles" asp-route-id="@ultimaId">
+                                        ⏱️ Ver última solicitud @ultimaMonto
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
                     <partial name="_LoginPartial" />
