@@ -1,0 +1,119 @@
+@model Parcial.Models.ViewModels.MisSolicitudesFilterViewModel
+
+@{
+    ViewData["Title"] = "Mis Solicitudes de Crédito";
+}
+
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="fw-bold text-primary mb-0">📄 Mis Solicitudes de Crédito</h2>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+        <h5 class="card-title fw-bold text-secondary mb-0">Filtros de Búsqueda</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="MisSolicitudes" method="get">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label asp-for="Estado" class="form-label text-muted small fw-bold"></label>
+                    <select asp-for="Estado" asp-items="Html.GetEnumSelectList<Parcial.Models.EstadoSolicitud>()" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="MontoMin" class="form-label text-muted small fw-bold"></label>
+                    <input asp-for="MontoMin" class="form-control form-control-sm" placeholder="Mínimo" />
+                    <span asp-validation-for="MontoMin" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="MontoMax" class="form-label text-muted small fw-bold"></label>
+                    <input asp-for="MontoMax" class="form-control form-control-sm" placeholder="Máximo" />
+                    <span asp-validation-for="MontoMax" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="FechaInicio" class="form-label text-muted small fw-bold"></label>
+                    <input asp-for="FechaInicio" class="form-control form-control-sm" />
+                    <span asp-validation-for="FechaInicio" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="FechaFin" class="form-label text-muted small fw-bold"></label>
+                    <input asp-for="FechaFin" class="form-control form-control-sm" />
+                    <span asp-validation-for="FechaFin" class="text-danger small"></span>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="d-grid w-100">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            🔍 Buscar
+                        </button>
+                        <a asp-action="MisSolicitudes" class="btn btn-light btn-sm mt-1">Limpiar</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Solicitudes != null && Model.Solicitudes.Any())
+{
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-borderless align-middle mb-0">
+                <thead class="table-light text-muted">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Monto Solicitado</th>
+                        <th>Estado</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Solicitudes)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-secondary">#@item.Id</td>
+                            <td>@item.FechaSolicitud.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-semibold">@item.MontoSolicitado.ToString("C")</td>
+                            <td>
+                                @if (item.Estado == Parcial.Models.EstadoSolicitud.Aprobado)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Aprobado</span>
+                                }
+                                else if (item.Estado == Parcial.Models.EstadoSolicitud.Rechazado)
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Rechazado</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">Pendiente</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-action="Detalles" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    Ver Detalle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info shadow-sm border-0 d-flex align-items-center" role="alert">
+        <div>
+            <h5 class="alert-heading fw-bold mb-1">Sin resultados</h5>
+            <p class="mb-0">No se encontraron solicitudes de crédito que coincidan con los filtros aplicados.</p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
