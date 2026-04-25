@@ -1,0 +1,51 @@
+@model Parcial.Models.ViewModels.CrearSolicitudViewModel
+
+@{
+    ViewData["Title"] = "Nueva Solicitud de Crédito";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4 mt-5">
+            <div class="card-header bg-primary text-white rounded-top-4 py-3">
+                <h4 class="mb-0 text-center fw-bold">💳 Solicitar Nuevo Crédito</h4>
+            </div>
+            <div class="card-body p-5">
+                
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger rounded-3 mb-4">
+                        <div asp-validation-summary="ModelOnly" class="mb-0 fw-semibold"></div>
+                    </div>
+                }
+
+                <form asp-action="Crear" method="post">
+                    <div class="mb-4">
+                        <label asp-for="MontoSolicitado" class="form-label fw-bold text-secondary"></label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-light border-end-0 text-muted">$</span>
+                            <input asp-for="MontoSolicitado" class="form-control border-start-0" placeholder="Ej. 15000" type="number" step="0.01" />
+                        </div>
+                        <span asp-validation-for="MontoSolicitado" class="text-danger small mt-1 d-block fw-semibold"></span>
+                        <div class="form-text text-muted mt-2">
+                            <i class="bi bi-info-circle"></i> El monto solicitado no puede superar 10 veces sus ingresos mensuales declarados.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                            Registrar Solicitud
+                        </button>
+                        <a asp-action="MisSolicitudes" class="btn btn-light btn-lg rounded-pill fw-semibold text-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

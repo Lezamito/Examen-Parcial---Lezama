@@ -8,7 +8,28 @@
     <div class="col">
         <h2 class="fw-bold text-primary mb-0">📄 Mis Solicitudes de Crédito</h2>
     </div>
+    <div class="col-auto">
+        <a asp-action="Crear" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+            ➕ Nueva Solicitud
+        </a>
+    </div>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+        <strong>¡Éxito!</strong> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+        <strong>Error:</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
