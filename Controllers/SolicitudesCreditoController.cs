@@ -233,11 +233,5 @@ namespace Parcial.Controllers
             return RedirectToAction(nameof(MisSolicitudes));
         }
 
-        // Action placeholder para Index del Analista (evitar error en el Layout)
-        [Authorize(Roles = "Analista")]
-        public IActionResult Index()
-        {
-            return View();
-        }
     }
 }
